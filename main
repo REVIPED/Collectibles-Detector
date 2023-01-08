@@ -3,6 +3,9 @@ import requests
 # Set the base URL for the Roblox API
 base_url = 'https://inventory.roblox.com/v1/users/'
 
+# Set the user ID of the player we want to gather collectibles for
+user_id = 13936322
+
 # Set the asset type to "Hat" and the sort order to "Asc"
 asset_type = 'Hat'
 sort_order = 'Asc'
@@ -10,50 +13,38 @@ sort_order = 'Asc'
 # Set the limit for the number of collectibles to retrieve
 limit = 100
 
-# Set the URL for the API request to retrieve a list of user IDs
-url = 'https://inventory.roblox.com/v1/users'
+# Set the API key for the request
+api_key = 'g3sEPQb2H0WZaeb18EjsTN15fOksD0+Ye/zRngANUheuKQdK'
+
+# Construct the URL for the API request
+url = f'{base_url}{user_id}/assets/collectibles?assetType={asset_type}&sortOrder={sort_order}&limit={limit}'
+
+# Set the HTTP headers for the request
+headers = {
+    'Authorization': f'Bearer {api_key}'
+}
 
 # Make the API request
-response = requests.get(url)
+response = requests.get(url, headers=headers)
 
 # Check the status code of the response
 if response.status_code == 200:
-    # If the request is successful, get the user data from the response
-    user_data = response.json()
+    # If the request is successful, get the collectibles data from the response
+    collectibles_data = response.json()
 
-    # Get the list of user IDs from the user data
-    user_ids = [user['id'] for user in user_data]
+    # Get the player's name from the collectibles data
+    player_name = collectibles_data['user']['username']
 
-    # Loop through the user IDs
-    for user_id in user_ids:
-        # Construct the URL for the API request to retrieve collectibles data
-        url = f'{base_url}{user_id}/assets/collectibles?assetType={asset_type}&sortOrder={sort_order}&limit={limit}'
+    # Get the list of collectibles from the collectibles data
+    collectibles = collectibles_data['data']
 
-        # Make the API request
-        response = requests.get(url)
+    # Print the player's name
+    print(f'Player: {player_name}')
 
-        # Check the status code of the response
-        if response.status_code == 200:
-            # If the request is successful, get the collectibles data from the response
-            collectibles_data = response.json()
-
-            # Get the player's name from the collectibles data
-            player_name = collectibles_data['user']['username']
-
-            # Get the list of collectibles from the collectibles data
-            collectibles = collectibles_data['data']
-
-            # Print the player's name
-            print(f'Player: {player_name}')
-
-            # Loop through the collectibles and print the name of each one
-            for collectible in collectibles:
-                print(f'Collectible: {collectible["name"]}')
-
-        else:
-            # If the request is not successful, print an error message
-            print('An error occurred while retrieving collectibles data')
+    # Loop through the collectibles and print the name of each one
+    for collectible in collectibles:
+        print(f'Collectible: {collectible["name"]}')
 
 else:
     # If the request is not successful, print an error message
-    print('An error occurred while retrieving user data')
+    print('An error occurred while retrieving collectibles data')
